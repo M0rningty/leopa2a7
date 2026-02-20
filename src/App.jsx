@@ -1,17 +1,16 @@
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, Html, useProgress } from "@react-three/drei";
+import { OrbitControls, Environment } from "@react-three/drei";
 import Model from "./Model";
-import { parts } from "./parts/parts.config";
-
-function Loader() {
-  const { progress } = useProgress();
-  return (
-    <Html center style={{ color: "white", fontFamily: "sans-serif" }}>
-      Loading… {progress.toFixed(0)}%
-    </Html>
-  );
-}
+import Terrain from "./Terrain";
+import useLoadingProgress from "./hooks/useLoadingProgress";
+import LoadingScreen from "./components/LoadingScreen";
+import HudOverlay from "./components/HudOverlay";
+import MetricsPanel from "./components/MetricsPanel";
+import CyberPanel from "./components/CyberPanel";
+import AudioVisualizer from "./components/AudioVisualizer";
+import ControlsPanel from "./components/ControlsPanel";
+import CameraReset from "./components/CameraReset";
 
 export default function App() {
   const [currentScale, setCurrentScale] = useState(1);
@@ -19,28 +18,75 @@ export default function App() {
   const [xray, setXray] = useState(false);
   const [idle, setIdle] = useState(true);
   const [selectedPart, setSelectedPart] = useState(null);
+  const [isClosing, setIsClosing] = useState(false);
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [resetTrigger, setResetTrigger] = useState(0);
+  const controlsRef = useRef();
+  const mainGroupRef = useRef();
+
+  const { isLoading, isClosingLoading, loadingProgress } = useLoadingProgress(modelsLoaded);
 
   const handleBackgroundClick = () => {
     if (selectedPart) {
-      setSelectedPart(null);
+      setIsClosing(true);
+      setTimeout(() => {
+        setSelectedPart(null);
+        setIsClosing(false);
+      }, 500);
     }
   };
 
+  const handleResetCamera = () => {
+    if (selectedPart) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setSelectedPart(null);
+        setIsClosing(false);
+      }, 500);
+    }
+    setResetTrigger(prev => prev + 1);
+  };
+
   return (
-    <div style={{ width: "100vw", height: "100vh", background: "#000000" }}>
+    <div className="app-container">
+      <HudOverlay />
+
+      {isLoading && (
+        <LoadingScreen
+          isClosing={isClosingLoading}
+          loadingProgress={loadingProgress}
+        />
+      )}
+
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={[1.5, 2]}
         frameloop="always"
         camera={{ position: [0, 0.2, 4], fov: 50 }}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
+        gl={{
+          antialias: true,
+          powerPreference: "high-performance",
+          alpha: false,
+          stencil: false,
+          depth: true
+        }}
         onPointerMissed={handleBackgroundClick}
+        style={{ background: "transparent" }}
       >
+        <color attach="background" args={['#000000']} />
+        <fog attach="fog" args={['#000000', 15, 35]} />
         <ambientLight intensity={0.6} />
-        <directionalLight position={[3, 5, 2]} intensity={1.2} />
+        <directionalLight position={[5, 8, 5]} intensity={2.0} color="#ffffff" castShadow />
+        <directionalLight position={[-5, 3, -3]} intensity={1.2} color="#ffffff" />
+        <spotLight position={[0, 10, 0]} angle={0.3} penumbra={1} intensity={0.8} color="#ffffff" />
+        <pointLight position={[0, 2, 2]} intensity={0.5} color="#ffffff" />
+        <pointLight position={[3, 1, -3]} intensity={0.4} color="#ffffff" />
+        <pointLight position={[-3, 1, 3]} intensity={0.4} color="#ffffff" />
 
-        <Environment preset="city" />
+        <Environment preset="night" />
+        <Terrain mainGroupRef={mainGroupRef} />
 
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={null}>
           <Model
             color="#ffffff"
             xray={xray}
@@ -50,108 +96,34 @@ export default function App() {
             onCameraChange={setCameraPos}
             selectedPart={selectedPart}
             setSelectedPart={setSelectedPart}
+            mainGroupRef={mainGroupRef}
+            onLoad={() => setModelsLoaded(true)}
           />
         </Suspense>
 
+        <CameraReset controlsRef={controlsRef} resetTrigger={resetTrigger} />
+
         <OrbitControls
+          ref={controlsRef}
           enableDamping
           dampingFactor={0.08}
           maxDistance={8}
           autoRotate={idle}
           autoRotateSpeed={0.5}
+          enableZoom={!selectedPart}
         />
       </Canvas>
 
-      <div style={{ position: "fixed", left: 16, top: 16, color: "white", fontFamily: "monospace", fontSize: 18, fontWeight: 700, background: "rgba(0,0,0,0.7)", padding: "12px 20px", borderRadius: 8, lineHeight: 1.6 }}>
-        <div>Scale: {currentScale.toFixed(3)}</div>
-        <div>Cam: r={cameraPos.r.toFixed(2)}, θ={cameraPos.theta.toFixed(1)}°, φ={cameraPos.phi.toFixed(1)}°</div>
-      </div>
-
-      {selectedPart && (
-        <div
-          className="hologram-box"
-          style={{
-            position: "fixed",
-            left: 16,
-            top: 100,
-            color: "#00ffff",
-            fontFamily: "monospace",
-            fontSize: 16,
-            fontWeight: 600,
-            background: "rgba(0, 20, 40, 0.85)",
-            padding: "16px 24px",
-            borderRadius: 8,
-            lineHeight: 1.8,
-            border: "2px solid rgba(0, 200, 255, 0.6)",
-            backdropFilter: "blur(5px)"
-          }}
-        >
-          <div
-            className="hologram-text"
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              marginBottom: 12,
-              textTransform: "uppercase",
-              letterSpacing: "2px",
-              color: "#00ffff"
-            }}
-          >
-            &gt; Selected Object
-          </div>
-          <div className="hologram-data" style={{ color: "#88ddff" }}>Name: <span style={{ color: "#00ff88" }}>{selectedPart}</span></div>
-          <div className="hologram-data" style={{ color: "#88ddff" }}>Threshold Angle: <span style={{ color: "#00ff88" }}>{parts[selectedPart].thresholdAngle}°</span></div>
-          <div className="hologram-data" style={{ color: "#88ddff" }}>Opacity: <span style={{ color: "#00ff88" }}>{parts[selectedPart].opacity}</span></div>
-        </div>
-      )}
-
-      <div style={{ position: "fixed", right: 16, top: 16, display: "flex", gap: 12 }}>
-        <button
-          onClick={() => setIdle(!idle)}
-          style={{
-            color: idle ? "#00ff66" : "rgba(255,255,255,0.6)",
-            background: "transparent",
-            border: "none",
-            padding: 8,
-            cursor: "pointer",
-            transition: "all 0.2s",
-            display: "flex",
-            alignItems: "center",
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = idle ? "#00ff88" : "white"}
-          onMouseLeave={(e) => e.currentTarget.style.color = idle ? "#00ff66" : "rgba(255,255,255,0.6)"}
-        >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-          </svg>
-        </button>
-
-        <button
-          onClick={() => setXray(!xray)}
-          style={{
-            color: xray ? "#00bbff" : "rgba(255,255,255,0.6)",
-            background: "transparent",
-            border: "none",
-            padding: 8,
-            cursor: "pointer",
-            transition: "all 0.2s",
-            display: "flex",
-            alignItems: "center",
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = xray ? "#00ddff" : "white"}
-          onMouseLeave={(e) => e.currentTarget.style.color = xray ? "#00bbff" : "rgba(255,255,255,0.6)"}
-        >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
-      </div>
-
-      <div style={{ position: "fixed", left: 16, bottom: 16, color: "white", fontFamily: "sans-serif", opacity: 0.85, lineHeight: 1.4 }}>
-        <div style={{ fontWeight: 700 }}>Three.js + React</div>
-        <div>마우스 드래그: 회전 / 휠: 줌</div>
-      </div>
+      <MetricsPanel currentScale={currentScale} cameraPos={cameraPos} />
+      <CyberPanel selectedPart={selectedPart} isClosing={isClosing} />
+      <AudioVisualizer playing={musicPlaying} onToggle={() => setMusicPlaying(!musicPlaying)} />
+      <ControlsPanel
+        onResetCamera={handleResetCamera}
+        idle={idle}
+        onToggleIdle={() => setIdle(!idle)}
+        xray={xray}
+        onToggleXray={() => setXray(!xray)}
+      />
     </div>
   );
 }

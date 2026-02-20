@@ -15,7 +15,6 @@ export default function Scene({
   children,
 }) {
   const currentScale = useRef(1);
-  const currentPosZ = useRef(0);
   const currentRotY = useRef(0);
   const idleRotationTime = useRef(0);
   const poRotateTimeRef = useRef(0);
@@ -32,17 +31,14 @@ export default function Scene({
     if (!mainGroupRef.current) return;
 
     const targetScale = selectedPart ? 1.5 : 1;
-    const targetPosZ = selectedPart ? 1.5 : 0;
 
     const smoothDelta = Math.min(delta, 0.1);
     currentScale.current = lerp(currentScale.current, targetScale, smoothDelta * 1.5);
-    currentPosZ.current = lerp(currentPosZ.current, targetPosZ, smoothDelta * 1.5);
 
     const clampedScale = Math.max(1, Math.min(1.5, currentScale.current));
     currentScale.current = clampedScale;
 
     mainGroupRef.current.scale.set(clampedScale, clampedScale, clampedScale);
-    mainGroupRef.current.position.z = currentPosZ.current;
 
     if (onScaleChange) {
       onScaleChange(clampedScale);
@@ -123,7 +119,7 @@ export default function Scene({
         } else {
           const prevRotation = poGroupRef.current.rotation.y;
           poRotateTimeRef.current += delta;
-          const newRotation = Math.sin(poRotateTimeRef.current * 0.13) * 0.3;
+          const newRotation = Math.sin(poRotateTimeRef.current * 0.4) * 0.3;
           poGroupRef.current.rotation.y = newRotation;
 
           if (Math.abs(newRotation) < 0.01 && Math.abs(prevRotation) > 0.01) {
@@ -136,7 +132,7 @@ export default function Scene({
         }
       } else {
         poRotateTimeRef.current += delta;
-        const newRotation = Math.sin(poRotateTimeRef.current * 0.13) * 0.3;
+        const newRotation = Math.sin(poRotateTimeRef.current * 0.4) * 0.3;
         poGroupRef.current.rotation.y = newRotation;
       }
     }

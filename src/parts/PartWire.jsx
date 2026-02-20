@@ -31,6 +31,7 @@ export default function PartWire({
       opacity,
       depthTest: !xray,
       depthWrite: false,
+      linewidth: 2,
     });
   }
 

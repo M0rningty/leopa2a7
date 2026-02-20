@@ -1,0 +1,107 @@
+@media (max-width: 768px) {
+  .cyber-panel {
+    left: 10px;
+    top: 140px;
+    min-width: 240px;
+    max-width: 240px;
+    padding: 16px;
+  }
+
+  .metrics-panel {
+    left: 10px;
+    top: 60px;
+    min-width: 240px;
+    padding: 16px;
+  }
+
+  .metric-item {
+    font-size: 11px;
+  }
+
+  .controls-panel {
+    right: 10px;
+    top: 10px;
+    gap: 6px;
+  }
+
+  .control-button {
+    padding: 10px;
+  }
+
+  .audio-visualizer {
+    left: 10px;
+    bottom: 10px;
+  }
+
+  .brand-text {
+    font-size: 7px;
+    letter-spacing: 3px;
+  }
+
+  .version-text {
+    font-size: 7px;
+  }
+
+  .status-indicator {
+    bottom: 10px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cyber-panel {
+    left: 8px;
+    top: 120px;
+    min-width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+    padding: 12px;
+  }
+
+  .metrics-panel {
+    left: 8px;
+    top: 50px;
+    min-width: calc(100vw - 16px);
+    padding: 12px;
+  }
+
+  .controls-panel {
+    right: 8px;
+    top: 8px;
+    gap: 4px;
+  }
+
+  .control-button {
+    padding: 8px;
+  }
+
+  .audio-visualizer {
+    left: 8px;
+    bottom: 8px;
+  }
+
+  .brand-text {
+    font-size: 6px;
+    letter-spacing: 2px;
+  }
+
+  .corner-frame {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-height: 600px) {
+  .cyber-panel {
+    top: 110px;
+    padding: 12px;
+  }
+
+  .metrics-panel {
+    top: 45px;
+    padding: 12px;
+  }
+
+  .metric-item {
+    padding: 6px 0;
+  }
+}

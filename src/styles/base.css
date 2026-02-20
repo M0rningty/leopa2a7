@@ -1,0 +1,27 @@
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #000000;
+  font-family: 'Share Tech Mono', monospace;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -30px); }
+  66% { transform: translate(-20px, 20px); }
+}
+
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  position: relative;
+  overflow: hidden;
+}

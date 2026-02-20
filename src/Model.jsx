@@ -16,8 +16,11 @@ export default function Model({
   onCameraChange,
   selectedPart,
   setSelectedPart,
+  mainGroupRef,
+  onLoad,
 }) {
-  const mainGroupRef = useRef();
+  const internalMainGroupRef = useRef();
+  const actualMainGroupRef = mainGroupRef || internalMainGroupRef;
   const chaGroupRef = useRef();
   const poGroupRef = useRef();
   const partRefs = useRef({});
@@ -72,12 +75,16 @@ export default function Model({
     currentSelectedPart.current = selectedPart;
   }, [selectedPart]);
 
+  useEffect(() => {
+    if (onLoad) onLoad();
+  }, [onLoad]);
+
   return (
     <Scene
       selectedPart={selectedPart}
       partOpacityRefs={partOpacityRefs}
       setPartOpacities={setPartOpacities}
-      mainGroupRef={mainGroupRef}
+      mainGroupRef={actualMainGroupRef}
       poGroupRef={poGroupRef}
       onScaleChange={onScaleChange}
       onCameraChange={onCameraChange}
@@ -87,7 +94,7 @@ export default function Model({
         rotation={rotation}
         scale={scale}
       >
-        <group ref={mainGroupRef}>
+        <group ref={actualMainGroupRef}>
           <group ref={chaGroupRef}>
             {chaGroup.map((key) => {
               const part = parts[key];
@@ -98,7 +105,10 @@ export default function Model({
               return (
                 <group
                   key={key}
-                  ref={(el) => (partRefs.current[key] = el)}
+                  ref={(el) => {
+                    partRefs.current[key] = el;
+                    if (el) el.userData.partKey = key;
+                  }}
                 >
                   <PartWire
                     url={part.url}
@@ -133,7 +143,10 @@ export default function Model({
               return (
                 <group
                   key={key}
-                  ref={(el) => (partRefs.current[key] = el)}
+                  ref={(el) => {
+                    partRefs.current[key] = el;
+                    if (el) el.userData.partKey = key;
+                  }}
                 >
                   <PartWire
                     url={part.url}

@@ -1,0 +1,92 @@
+.audio-visualizer {
+  position: fixed;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.visualizer-button {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 8px;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.02);
+}
+
+.visualizer-button:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.visualizer-bars-container {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 20px;
+  position: relative;
+}
+
+.visualizer-glow {
+  position: absolute;
+  inset: -8px;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+  pointer-events: none;
+}
+
+.visualizer-bar {
+  width: 4px;
+  height: 20px;
+  background: #ffffff;
+  transform-origin: bottom;
+  transform: scaleY(0.12);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.controls-panel {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.control-button {
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.02);
+}
+
+.control-button:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.control-button.active {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1);
+}
